@@ -11,11 +11,12 @@ var FILE_NAME = 'server.log';
 var socket = net.connect({host : HOST, port : PORT}, connectedToServer);
 
 function connectedToServer(){
-  console.log('connected to the server guys');
+
+//process.stdout.write('CONNECTED TO: '+ socket.remoteAddress +":"+ socket.remotePort + ': ' )
+
   process.stdin.pipe(socket);
 
   socket.on('data', function(data){
-    process.stdout.write('SERVER BCAST FROM '+ socket.localAddress +":"+ socket.localPort + ': ' )
     process.stdout.write(data);
   })
 
