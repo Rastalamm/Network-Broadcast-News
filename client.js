@@ -8,7 +8,10 @@ var socket = net.Socket({
   writable: true
 });
 
+
+process.stdin.pipe(socket);
+
+
 socket.connect(PORT);
-socket.setDefaultEncoding('utf8');
-socket.write('string for now');
+socket.write('string for now \n');
 socket.end();

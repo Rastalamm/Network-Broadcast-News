@@ -16,8 +16,10 @@ function clientConnected (socket) {
   });
 
   socket.on('data', function(data){
-    socket.setDefaultEncoding('utf8');
-    console.log('data', data);
+
+    console.log(socket);
+    process.stdout.write(data);
+
   })
 
 
@@ -26,6 +28,6 @@ function clientConnected (socket) {
 }
 
 var server = net.createServer(clientConnected);
-server.listen(PORT, function() { //'listening' listener
+server.listen(PORT, HOST, function() { //'listening' listener
   console.log('server port is', PORT);
 });
