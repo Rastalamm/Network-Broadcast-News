@@ -15,9 +15,11 @@ function clientConnected (socket) {
     console.log('client disconnected');
   });
 
+  console.log('port', socket.remotePort);
+  console.log('address', socket.remoteAddress);
+
   socket.on('data', function(data){
 
-    console.log(socket);
     process.stdout.write(data);
 
   })
