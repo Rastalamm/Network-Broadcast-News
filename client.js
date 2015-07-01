@@ -12,7 +12,7 @@ var socket = net.connect({host : HOST, port : PORT}, connectedToServer);
 
 function connectedToServer(){
 
-//process.stdout.write('CONNECTED TO: '+ socket.remoteAddress +":"+ socket.remotePort + ': ' )
+//process.stdout.
 
   process.stdin.pipe(socket);
 

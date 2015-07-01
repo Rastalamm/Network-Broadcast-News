@@ -8,6 +8,7 @@ function clientConnected (socket) {
 
 //welcome message
   socket.write('welcome! PLease play nice');
+  socket.write('CONNECTED TO: '+ socket.remoteAddress +":"+ socket.remotePort + ': ' )
 
   clientConnectedList[socket.remotePort] = socket;
 
