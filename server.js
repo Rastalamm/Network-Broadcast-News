@@ -12,7 +12,6 @@ function clientConnected (socket) {
 //welcome message for the client
   socket.write('Please enter a Username to begin: \n');
 
-
 //adds the clients port # to the connected list object
   clientConnectedList[socket.remotePort] = socket;
   clientConnectedList[socket.remotePort].username = null;
@@ -24,14 +23,8 @@ function clientConnected (socket) {
   //sets the UN and/or writes the info to the server
   socket.on('data', function(data){
 
-    console.log('string data', data.substring(0, data.length-1))
-     // process.stdout.write('process', data)
-    // process.stdout.write('string process', data.substring(0, data.length-1))
-
   //if no username is set
-  if(clientConnectedList[socket.remotePort].username === null){
-
-
+    if(clientConnectedList[socket.remotePort].username === null){
       //checks to see if the username they want is available
       if( data.substring(0, data.length-1) === 'admin' || data.substring(0, data.length-1) === "" || usernameList.indexOf(data.substring(0, data.length-1)) > -1  ){
         socket.write('That\'s a good username! Too bad though, another user has it! \n');
@@ -46,31 +39,30 @@ function clientConnected (socket) {
        }
 
 
-  }else{
-    //username is unique
-    process.stdout.write('SERVER BCAST FROM '+ clientConnectedList[socket.remotePort].username + ': ' + data + '\n');
+    }else{
+      //username is unique
+      process.stdout.write('SERVER BCAST FROM '+ clientConnectedList[socket.remotePort].username + ': ' + data + '\n');
 
-    // this is what the clients see
-    for (key in clientConnectedList){
-      clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
+      // this is what the clients see
+      for (key in clientConnectedList){
+        clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
+      }
     }
 
-  }
-
-    // if(clientConnectedList[socket.remotePort].username === null){
-    //   clientConnectedList[socket.remotePort].username = data.substring(0, data.length-1);
-    //   process.stdout.write('New User: '+ clientConnectedList[socket.remotePort].username + '\n');
-    // }else{
-    // }
 
   })
 
 
-// console.log('list of current clients', Object.keys(clientConnectedList));
-// for (key in clientConnectedList){
-//   console.log('llist of usernames',clientConnectedList[key].username);
-// }
+//Need to pipe this to other users
+  process.stdin.on('data', function(c){
+      process.stdout.write('ADMIN says ' + ': ' + c + '\n');
 
+      // this is what the clients see
+      for (key in clientConnectedList){
+        clientConnectedList[key].write('ADMIN says' +  ': ' + c)
+      }
+
+  })
 
 
 //removes the socket after the user has left
@@ -89,5 +81,4 @@ var server = net.createServer(clientConnected);
 
 server.listen(PORT, HOST, function() { //'listening' listener
   process.stdout.write('Server Listening on ' + HOST + ':' + PORT + '\n');
-
 });
