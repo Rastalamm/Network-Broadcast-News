@@ -119,15 +119,15 @@ function userExits(socket, data){
   process.stdin.on('data', function(data){
 
   data = data.substring(0, data.length-1);
-console.log('firstdata', data);
 
     if(data.substring(0,1) === '~'){
 
       input = data.split(' ');
       command = input[0];
-      user = input[1]
+      user = input[1];
 
-      commands(data, user);
+
+      commands(input, command, user);
     }else{
       adminWriteOut(data)
     }
@@ -148,16 +148,15 @@ function adminWriteOut(data){
 }
 
 
-function commands(socket, data, command, user){
-
-console.log('data', data);
-console.log('command', command);
-console.log('user', user);
-
+function commands(input, command, user){
 
   switch(command){
     case '~kick':
-      findUserByUserName(socket, data, user);
+      findUserByUserName(user);
+    break;
+
+    case '~userlist':
+      console.log('Current Users', usernameList);
     break;
 
     default:
@@ -166,23 +165,19 @@ console.log('user', user);
 
   }
 
-//shows me what data is
-process.stdout.write(data);
-
-
 }
 
 
-function findUserByUserName(socket, data, user){
+function findUserByUserName(user){
+
+  console.log('call this');
 
   for(key in clientConnectedList){
 
     if(clientConnectedList[key].username === user){
 
       blackList.push(clientConnectedList[key].username);
-
       clientConnectedList[key].end('Off with your head!');
-
       console.log('The naughty list', blackList);
     }
 

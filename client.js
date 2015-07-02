@@ -6,7 +6,7 @@ var FILE_NAME = 'server.log';
 //Const: .30
 //Kawika: .3
 //Dan: .6
-//Jason:
+//Jason: .23
 //Judah: .24
 
 var socket = net.connect({host : HOST, port : PORT}, connectedToServer);
