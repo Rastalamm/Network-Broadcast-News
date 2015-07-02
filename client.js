@@ -13,7 +13,6 @@ var socket = net.connect({host : HOST, port : PORT}, connectedToServer);
 
 function connectedToServer(){
 
-
   process.stdin.pipe(socket);
 
   socket.on('data', function(data){

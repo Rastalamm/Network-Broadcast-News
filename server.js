@@ -6,6 +6,27 @@ var clientConnectedList = {};
 var usernameList = [];
 
 
+var server = net.createServer(clientConnected);
+
+server.listen(PORT, HOST, function() { //'listening' listener
+  process.stdout.write('Server Listening on ' + HOST + ':' + PORT + '\n');
+});
+
+function adminActions(){
+  console.log('client disconnected');
+}
+
+function userNameCheck(socket){
+
+}
+
+function usernameAssign(socket){
+
+}
+
+
+
+
 function clientConnected (socket) {
   socket.setEncoding('utf8');
 
@@ -22,7 +43,6 @@ function clientConnected (socket) {
 
   //sets the UN and/or writes the info to the server
   socket.on('data', function(data){
-
   //if no username is set
     if(clientConnectedList[socket.remotePort].username === null){
       //checks to see if the username they want is available
@@ -66,8 +86,3 @@ function clientConnected (socket) {
 
 }
 
-var server = net.createServer(clientConnected);
-
-server.listen(PORT, HOST, function() { //'listening' listener
-  process.stdout.write('Server Listening on ' + HOST + ':' + PORT + '\n');
-});
