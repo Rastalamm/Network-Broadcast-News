@@ -37,8 +37,6 @@ function clientConnected (socket) {
           process.stdout.write('New Username: '+ clientConnectedList[socket.remotePort].username + '\n');
           socket.write('Hey ' + clientConnectedList[socket.remotePort].username + '! What is the first word that comes to mind? \n');
        }
-
-
     }else{
       //username is unique
       process.stdout.write('SERVER BCAST FROM '+ clientConnectedList[socket.remotePort].username + ': ' + data + '\n');
@@ -48,20 +46,11 @@ function clientConnected (socket) {
         clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
       }
     }
-
-
   })
 
-
-//Need to pipe this to other users
+//admin writes to all
   process.stdin.on('data', function(c){
-      process.stdout.write('ADMIN says ' + ': ' + c + '\n');
-
-      // this is what the clients see
-      for (key in clientConnectedList){
-        clientConnectedList[key].write('ADMIN says' +  ': ' + c)
-      }
-
+    socket.write('ADMIN says' +  ': ' + c );
   })
 
 
