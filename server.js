@@ -2,8 +2,10 @@ var net = require('net');
 var PORT = 6969;
 var HOST = '0.0.0.0';
 var FILE_NAME = 'server.log';
-var clientConnectedList = {};
-var usernameList = ['admin', 'ADMIN', ''];
+// var clientConnectedList = {};
+var clientConnectedList = require('./cclist.js')();
+var blackList = ['admin', 'ADMIN'];
+var usernameList = [];
 var commandList = {126 : '~kick'};
 
 
@@ -16,7 +18,6 @@ server.listen(PORT, HOST, function() { //'listening' listener
 function dataListener(socket){
 
   socket.on('data', function(data){
-    //validates a username exists
 
     if(clientConnectedList[socket.remotePort].username === null){
       userNameCheck(socket, data);
@@ -25,8 +26,6 @@ function dataListener(socket){
     }
 
   })
-
-
 
   socket.on('end', function(data){
    userExits(socket);
@@ -42,13 +41,12 @@ function onConnect(socket, data){
 
   dataListener(socket, data);
   storeUserInfo(socket, data);
-  adminMessageOut(socket, data);
   socket.write('Please enter a Username to begin: \n');
 
 }
 
 //adds the clients port # to the connected list object
-function storeUserInfo(socket){
+function storeUserInfo(socket, data){
   clientConnectedList[socket.remotePort] = socket;
   clientConnectedList[socket.remotePort].username = null;
 
@@ -57,12 +55,30 @@ function storeUserInfo(socket){
 
 function userNameCheck(socket, data){
 
-  if(usernameList.indexOf(data.substring(0, data.length-1)) > -1  ){
+  if(blackList.indexOf(data.substring(0, data.length-1)) > -1 ){
+    socket.write('Illegal entry! Please reconnect \n');
+    socket.end();
+  }else{
+    //checks for duplicates
+    if(usernameList.indexOf(data.substring(0, data.length-1)) > -1  ){
       socket.write('That\'s a good username! Too bad though, another user has it! \n');
       socket.write('Please enter an even better Username \n');
     }else{
-      usernameAssign(socket, data);
+      if(data.substring(0, data.length-1) === ''){
+          socket.write('You need a username! \n');
+          socket.write('Please enter an Username \n');
+      }else{
+        //checks for spaces
+        if(data.substring(0, data.length-1).indexOf(' ') > -1){
+          socket.write('Usernames are spaceless.. \n');
+          socket.write('Please enter an Username \n');
+        }else{
+          usernameAssign(socket, data);
+        }
+      }
     }
+  }
+
 
 }
 
@@ -83,9 +99,9 @@ function writeMessages(socket, data){
   process.stdout.write('SERVER BCAST FROM '+ clientConnectedList[socket.remotePort].username + ': ' + data + '\n');
 
   //writes messages to the clients
-  for (key in clientConnectedList){
-    clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
-  }
+  // for (key in clientConnectedList){
+  //   clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
+  // }
 }
 
 function userExits(socket, data){
@@ -93,48 +109,86 @@ function userExits(socket, data){
       usernameList.splice(usernameList.indexOf(clientConnectedList[socket._peername.port].username),1);
     }
     delete clientConnectedList[socket._peername.port]
-    console.log('client disconnected', socket._peername.port);
+    console.log('\n client disconnected', socket._peername.port);
     console.log('list of current Users', usernameList);
 }
 
 
-function adminMessageOut(socket, data){
-
-//admin writes to all
+(function adminMessageOut(){
+  process.stdin.setEncoding('utf8');
   process.stdin.on('data', function(data){
 
-    if(commandList.hasOwnProperty(data[0])){
-      //call the function command
-      console.log('a command has been given!');
-      commands(socket, data, data[0]);
+  data = data.substring(0, data.length-1);
+console.log('firstdata', data);
+
+    if(data.substring(0,1) === '~'){
+
+      input = data.split(' ');
+      command = input[0];
+      user = input[1]
+
+      commands(data, user);
     }else{
-
-      console.log(data[0]);
-
-      socket.write('ADMIN says' +  ': ' + data );
-
+      adminWriteOut(data)
     }
   })
 
+})();
+
+function adminWriteOut(data){
+
+  data = data;
+
+  var portArr = Object.keys(clientConnectedList);
+
+  portArr.forEach(function(element){
+    clientConnectedList[element].write('ADMIN says' +  ': ' + data + '\n');
+  });
+
 }
 
-//create a filter for commands
-//meabing the first character is a ~ or 126
-//substring the command words from the ~
-//put ther command word into a swtich and run functions
-// each command gets its own function or jsut each swtich
 
+function commands(socket, data, command, user){
 
-function commands(socket, data, command){
-console.log('socket', socket);
+console.log('data', data);
 console.log('command', command);
-process.stdout.write('The data', data);
-  // switch(data){
+console.log('user', user);
 
-  // }
+
+  switch(command){
+    case '~kick':
+      findUserByUserName(socket, data, user);
+    break;
+
+    default:
+      //some code
+    break;
+
+  }
+
+//shows me what data is
+process.stdout.write(data);
+
 
 }
 
 
+function findUserByUserName(socket, data, user){
 
+  for(key in clientConnectedList){
+
+    if(clientConnectedList[key].username === user){
+
+      blackList.push(clientConnectedList[key].username);
+
+      clientConnectedList[key].end('Off with your head!');
+
+      console.log('The naughty list', blackList);
+    }
+
+  }
+
+
+
+}
 
