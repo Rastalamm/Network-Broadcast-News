@@ -20,13 +20,4 @@ function connectedToServer(){
   })
 
 
-
 }
-
-
-
-
-
-
-// socket.write('string for now \n');
-// socket.end();

@@ -92,19 +92,15 @@ function autoRemove(socket, data){
   console.log(socket.timeCheck);
 
   if(socket.timeCheck.length > 4){
-
     if(socket.timeCheck[0] - socket.timeCheck[4] < 5000){
       blackList.push(clientConnectedList[socket.remotePort].username);
       socket.end('removed');
     }else{
       writeMessages(socket, data);
     }
-
   }else{
-
     writeMessages(socket, data);
   }
-
 }
 
 
