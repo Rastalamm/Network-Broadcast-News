@@ -9,11 +9,11 @@ var usernameList = [];
 var commandList = {126 : '~kick'};
 
 
+
 var server = net.createServer(onConnect);
 server.listen(PORT, HOST, function() { //'listening' listener
   process.stdout.write('Server Listening on ' + HOST + ':' + PORT + '\n');
 });
-
 
 function dataListener(socket){
 
@@ -22,19 +22,15 @@ function dataListener(socket){
     if(clientConnectedList[socket.remotePort].username === null){
       userNameCheck(socket, data);
     }else{
-      writeMessages(socket, data);
+      autoRemove(socket, data)
+      // writeMessages(socket, data);
     }
-
   })
 
   socket.on('end', function(data){
    userExits(socket);
   });
-
-
 }
-
-
 
 function onConnect(socket, data){
   socket.setEncoding('utf8');
@@ -42,16 +38,15 @@ function onConnect(socket, data){
   dataListener(socket, data);
   storeUserInfo(socket, data);
   socket.write('Please enter a Username to begin: \n');
-
 }
 
 //adds the clients port # to the connected list object
 function storeUserInfo(socket, data){
   clientConnectedList[socket.remotePort] = socket;
   clientConnectedList[socket.remotePort].username = null;
+  clientConnectedList[socket.remotePort].timeCheck = [];
 
 }
-
 
 function userNameCheck(socket, data){
 
@@ -78,8 +73,6 @@ function userNameCheck(socket, data){
       }
     }
   }
-
-
 }
 
 function usernameAssign(socket, data){
@@ -92,16 +85,38 @@ function usernameAssign(socket, data){
 }
 
 
+function autoRemove(socket, data){
+
+  socket.timeCheck.unshift(Date.now())
+
+  console.log(socket.timeCheck);
+
+  if(socket.timeCheck.length > 4){
+
+    if(socket.timeCheck[0] - socket.timeCheck[4] < 5000){
+      blackList.push(clientConnectedList[socket.remotePort].username);
+      socket.end('removed');
+    }else{
+      writeMessages(socket, data);
+    }
+
+  }else{
+
+    writeMessages(socket, data);
+  }
+
+}
+
 
 function writeMessages(socket, data){
 
   //writes messages to the server/admin
   process.stdout.write('SERVER BCAST FROM '+ clientConnectedList[socket.remotePort].username + ': ' + data + '\n');
 
-  //writes messages to the clients
-  // for (key in clientConnectedList){
-  //   clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
-  // }
+  // writes messages to the clients
+  for (key in clientConnectedList){
+    clientConnectedList[key].write(clientConnectedList[socket.remotePort].username + ': ' + data)
+  }
 }
 
 function userExits(socket, data){
@@ -152,7 +167,7 @@ function commands(input, command, user){
 
   switch(command){
     case '~kick':
-      findUserByUserName(user);
+      kickOutUser(user);
     break;
 
     case '~userlist':
@@ -168,7 +183,7 @@ function commands(input, command, user){
 }
 
 
-function findUserByUserName(user){
+function kickOutUser(user){
 
   console.log('call this');
 
